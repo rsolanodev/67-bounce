@@ -1,9 +1,12 @@
+import type { ControlMode } from '../GameConfig';
+
 export interface SaveData {
   unlockedLevel: number;
   totalTokens: number;
   bestScores: Record<number, number>;
   soundEnabled: boolean;
   musicEnabled: boolean;
+  controlMode: ControlMode;
 }
 
 const DEFAULT_SAVE: SaveData = {
@@ -12,6 +15,7 @@ const DEFAULT_SAVE: SaveData = {
   bestScores: {},
   soundEnabled: true,
   musicEnabled: true,
+  controlMode: 'tilt',
 };
 
 export class Storage {
@@ -53,6 +57,11 @@ export class Storage {
 
   setMusicEnabled(value: boolean): void {
     this.data.musicEnabled = value;
+    this.save();
+  }
+
+  setControlMode(mode: ControlMode): void {
+    this.data.controlMode = mode;
     this.save();
   }
 

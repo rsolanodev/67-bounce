@@ -1,5 +1,6 @@
 import * as pc from 'playcanvas';
 import { DEATH_MARGIN, PLAYER_CONFIG, SCORE_CONFIG, STORAGE_KEY } from './GameConfig';
+import type { ControlMode } from './GameConfig';
 import type { GameCallbacks, GameState, HudData } from './state/GameState';
 import { Storage } from './systems/Storage';
 import { AudioManager } from './systems/AudioManager';
@@ -35,6 +36,8 @@ export class Game {
   private lastHud: HudData | null = null;
   private landedPlatforms = new Set<Platform>();
   private destroyed = false;
+  private tiltPermissionChecked = false;
+  private tiltGranted = false;
 
   private onVisibilityChange = (): void => {
     if (document.hidden && this.state === 'PLAYING') {
@@ -82,7 +85,7 @@ export class Game {
     this.background.setTheme(level.theme);
     this.camera = new CameraController(this.app);
     this.player = new Player(this.app);
-    this.controller = new PlayerController(canvas);
+    this.controller = new PlayerController(canvas, save.controlMode);
     this.platforms = new PlatformManager(this.app);
     this.collectibles = new CollectibleManager(this.app);
     this.particles = new ParticleManager(this.app);
@@ -309,7 +312,36 @@ export class Game {
     this.loadLevel(this.levels.currentIdValue);
     this.controller.setEnabled(true);
     this.audio.unlock();
+    void this.initTilt();
     this.setState('PLAYING');
+  }
+
+  private async initTilt(): Promise<void> {
+    const wantTilt = this.storage.get().controlMode === 'tilt';
+    if (!wantTilt) {
+      this.controller.setTiltEnabled(false);
+      return;
+    }
+    if (!this.tiltPermissionChecked) {
+      this.tiltPermissionChecked = true;
+      const DOEvent = window.DeviceOrientationEvent as (typeof DeviceOrientationEvent & {
+        requestPermission?: () => Promise<string>;
+      }) | undefined;
+      if (DOEvent && typeof DOEvent.requestPermission === 'function') {
+        try {
+          const result = await DOEvent.requestPermission();
+          this.tiltGranted = result === 'granted';
+        } catch {
+          this.tiltGranted = false;
+        }
+      } else {
+        this.tiltGranted = true;
+      }
+    }
+    this.controller.setTiltEnabled(this.tiltGranted);
+    if (this.tiltGranted) {
+      this.callbacks.onTiltHint();
+    }
   }
 
   restart(): void {
@@ -355,6 +387,16 @@ export class Game {
     this.storage.setMusicEnabled(value);
     this.audio.setMusicEnabled(value);
     return value;
+  }
+
+  toggleControlMode(): ControlMode {
+    const next: ControlMode = this.storage.get().controlMode === 'tilt' ? 'touch' : 'tilt';
+    this.storage.setControlMode(next);
+    this.controller.setControlMode(next);
+    if (next === 'touch') {
+      this.controller.setTiltEnabled(false);
+    }
+    return next;
   }
 
   getSaveData() {

@@ -27,6 +27,19 @@ export const SCORE_CONFIG = {
   special67Bonus: 500,
 };
 
+export const TILT_CONFIG = {
+  deadzoneDeg: 3,
+  maxTiltDeg: 22,
+  smoothingAlpha: 0.18,
+  calibrationEventCount: 40,
+  calibrationTimeout: 2000,
+  staleAfterMs: 500,
+};
+
+export const CONTROL_DEFAULT: ControlMode = 'tilt';
+
+export type ControlMode = 'tilt' | 'touch';
+
 export const DEATH_MARGIN = 2.5;
 
 export const STORAGE_KEY = 'sixtyseven-bounce-save';

@@ -13,6 +13,7 @@ interface MenuState {
   totalTokens: number;
   soundEnabled: boolean;
   musicEnabled: boolean;
+  controlMode: 'tilt' | 'touch';
 }
 
 export default function App() {
@@ -23,7 +24,14 @@ export default function App() {
   const [result, setResult] = useState<GameResult | null>(null);
   const [complete, setComplete] = useState<LevelCompleteData | null>(null);
   const [showSpecial67, setShowSpecial67] = useState(false);
-  const [menu, setMenu] = useState<MenuState>({ unlockedLevel: 1, totalTokens: 0, soundEnabled: true, musicEnabled: true });
+  const [menu, setMenu] = useState<MenuState>({
+    unlockedLevel: 1,
+    totalTokens: 0,
+    soundEnabled: true,
+    musicEnabled: true,
+    controlMode: 'tilt',
+  });
+  const [showCalibrationHint, setShowCalibrationHint] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -39,6 +47,10 @@ export default function App() {
       onSpecial67: () => {
         setShowSpecial67(true);
         window.setTimeout(() => setShowSpecial67(false), 1600);
+      },
+      onTiltHint: () => {
+        setShowCalibrationHint(true);
+        window.setTimeout(() => setShowCalibrationHint(false), 1800);
       },
     });
     gameRef.current = game;
@@ -70,6 +82,10 @@ export default function App() {
             gameRef.current?.toggleMusic();
             syncMenu();
           }}
+          onToggleControl={() => {
+            gameRef.current?.toggleControlMode();
+            syncMenu();
+          }}
         />
       )}
       {state === 'PLAYING' && <HUD hud={hud} onPause={() => gameRef.current?.pause()} />}
@@ -91,6 +107,7 @@ export default function App() {
         />
       )}
       {showSpecial67 && <div className="special67-pop">67!!!</div>}
+      {showCalibrationHint && <div className="calibration-hint">Mantén el móvil recto</div>}
     </div>
   );
 }
@@ -101,5 +118,6 @@ function menuFromSave(save: SaveData): MenuState {
     totalTokens: save.totalTokens,
     soundEnabled: save.soundEnabled,
     musicEnabled: save.musicEnabled,
+    controlMode: save.controlMode,
   };
 }

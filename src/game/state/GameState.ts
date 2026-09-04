@@ -29,4 +29,5 @@ export interface GameCallbacks {
   onGameOver: (result: GameResult) => void;
   onLevelComplete: (data: LevelCompleteData) => void;
   onSpecial67: () => void;
+  onTiltHint: () => void;
 }

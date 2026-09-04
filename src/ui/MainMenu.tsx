@@ -7,14 +7,16 @@ interface MainMenuProps {
     totalTokens: number;
     soundEnabled: boolean;
     musicEnabled: boolean;
+    controlMode: 'tilt' | 'touch';
   };
   onPlay: () => void;
   onSelectLevel: (id: number) => void;
   onToggleSound: () => void;
   onToggleMusic: () => void;
+  onToggleControl: () => void;
 }
 
-export function MainMenu({ menu, onPlay, onSelectLevel, onToggleSound, onToggleMusic }: MainMenuProps) {
+export function MainMenu({ menu, onPlay, onSelectLevel, onToggleSound, onToggleMusic, onToggleControl }: MainMenuProps) {
   const [showLevels, setShowLevels] = useState(false);
 
   return (
@@ -53,6 +55,14 @@ export function MainMenu({ menu, onPlay, onSelectLevel, onToggleSound, onToggleM
             {menu.totalTokens}
           </span>
           <div className="menu-toggles">
+            <button
+              className={`ctl-toggle ${menu.controlMode === 'tilt' ? 'on' : ''}`}
+              onClick={onToggleControl}
+              aria-label="Toggle control mode"
+              title={`Control: ${menu.controlMode === 'tilt' ? 'Tilt (inclinar)' : 'Touch (deslizar)'}`}
+            >
+              {menu.controlMode === 'tilt' ? '📱 TILT' : '👆 TOUCH'}
+            </button>
             <button onClick={onToggleSound} aria-label="Toggle sound">
               {menu.soundEnabled ? '🔊' : '🔇'}
             </button>

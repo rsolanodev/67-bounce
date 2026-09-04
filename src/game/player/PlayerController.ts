@@ -1,3 +1,6 @@
+import type { ControlMode } from '../GameConfig';
+import { TiltController } from './TiltController';
+
 export class PlayerController {
   private left = false;
   private right = false;
@@ -5,6 +8,9 @@ export class PlayerController {
   private dragStartX = 0;
   private dragCurrentX = 0;
   private enabled = false;
+  private tiltEnabled = false;
+  private controlMode: ControlMode;
+  private tilt = new TiltController();
 
   private onKeyDown = (e: KeyboardEvent): void => {
     const key = e.key.toLowerCase();
@@ -44,7 +50,8 @@ export class PlayerController {
     e.preventDefault();
   };
 
-  constructor(private canvas: HTMLCanvasElement) {
+  constructor(private canvas: HTMLCanvasElement, controlMode: ControlMode) {
+    this.controlMode = controlMode;
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
     canvas.addEventListener('pointerdown', this.onPointerDown);
@@ -60,7 +67,35 @@ export class PlayerController {
       this.dragging = false;
       this.left = false;
       this.right = false;
+      this.setTiltEnabled(false);
     }
+  }
+
+  setControlMode(mode: ControlMode): void {
+    this.controlMode = mode;
+    if (mode !== 'tilt') {
+      this.setTiltEnabled(false);
+    }
+  }
+
+  setTiltEnabled(enabled: boolean): void {
+    this.tiltEnabled = enabled && this.controlMode === 'tilt';
+    if (this.tiltEnabled) {
+      this.tilt.start();
+      this.checkSensorAvailable();
+    } else {
+      this.tilt.stop();
+      this.tilt.reset();
+    }
+  }
+
+  private checkSensorAvailable(): void {
+    window.setTimeout(() => {
+      if (this.tiltEnabled && this.tilt.eventCountValue === 0) {
+        this.setTiltEnabled(false);
+        this.dragging = false;
+      }
+    }, 2500);
   }
 
   getAxis(): number {
@@ -69,6 +104,9 @@ export class PlayerController {
     if (this.left) key -= 1;
     if (this.right) key += 1;
     if (key !== 0) return key;
+    if (this.tiltEnabled) {
+      return this.tilt.axis;
+    }
     if (this.dragging) {
       const dx = this.dragCurrentX - this.dragStartX;
       return Math.max(-1, Math.min(1, dx / 50));
@@ -77,6 +115,7 @@ export class PlayerController {
   }
 
   destroy(): void {
+    this.setTiltEnabled(false);
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
     this.canvas.removeEventListener('pointerdown', this.onPointerDown);
