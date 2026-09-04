@@ -7,6 +7,7 @@ export interface SaveData {
   soundEnabled: boolean;
   musicEnabled: boolean;
   controlMode: ControlMode;
+  invertTilt: boolean;
 }
 
 const DEFAULT_SAVE: SaveData = {
@@ -16,6 +17,7 @@ const DEFAULT_SAVE: SaveData = {
   soundEnabled: true,
   musicEnabled: true,
   controlMode: 'tilt',
+  invertTilt: true,
 };
 
 export class Storage {
@@ -62,6 +64,11 @@ export class Storage {
 
   setControlMode(mode: ControlMode): void {
     this.data.controlMode = mode;
+    this.save();
+  }
+
+  setInvertTilt(value: boolean): void {
+    this.data.invertTilt = value;
     this.save();
   }
 

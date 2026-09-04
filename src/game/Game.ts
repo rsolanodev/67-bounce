@@ -85,7 +85,7 @@ export class Game {
     this.background.setTheme(level.theme);
     this.camera = new CameraController(this.app);
     this.player = new Player(this.app);
-    this.controller = new PlayerController(canvas, save.controlMode);
+    this.controller = new PlayerController(canvas, save.controlMode, save.invertTilt);
     this.platforms = new PlatformManager(this.app);
     this.collectibles = new CollectibleManager(this.app);
     this.particles = new ParticleManager(this.app);
@@ -396,6 +396,13 @@ export class Game {
     if (next === 'touch') {
       this.controller.setTiltEnabled(false);
     }
+    return next;
+  }
+
+  toggleInvertTilt(): boolean {
+    const next = !this.storage.get().invertTilt;
+    this.storage.setInvertTilt(next);
+    this.controller.setInvertTilt(next);
     return next;
   }
 

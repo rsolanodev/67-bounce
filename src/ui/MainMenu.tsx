@@ -8,15 +8,17 @@ interface MainMenuProps {
     soundEnabled: boolean;
     musicEnabled: boolean;
     controlMode: 'tilt' | 'touch';
+    invertTilt: boolean;
   };
   onPlay: () => void;
   onSelectLevel: (id: number) => void;
   onToggleSound: () => void;
   onToggleMusic: () => void;
   onToggleControl: () => void;
+  onToggleInvert: () => void;
 }
 
-export function MainMenu({ menu, onPlay, onSelectLevel, onToggleSound, onToggleMusic, onToggleControl }: MainMenuProps) {
+export function MainMenu({ menu, onPlay, onSelectLevel, onToggleSound, onToggleMusic, onToggleControl, onToggleInvert }: MainMenuProps) {
   const [showLevels, setShowLevels] = useState(false);
 
   return (
@@ -62,6 +64,14 @@ export function MainMenu({ menu, onPlay, onSelectLevel, onToggleSound, onToggleM
               title={`Control: ${menu.controlMode === 'tilt' ? 'Tilt (inclinar)' : 'Touch (deslizar)'}`}
             >
               {menu.controlMode === 'tilt' ? '📱 TILT' : '👆 TOUCH'}
+            </button>
+            <button
+              className={`ctl-toggle ${menu.invertTilt ? 'on' : ''}`}
+              onClick={onToggleInvert}
+              aria-label="Toggle tilt inversion"
+              title={`Invertir inclinación: ${menu.invertTilt ? 'ON' : 'OFF'}`}
+            >
+              ⇄ INVERT
             </button>
             <button onClick={onToggleSound} aria-label="Toggle sound">
               {menu.soundEnabled ? '🔊' : '🔇'}

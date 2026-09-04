@@ -14,6 +14,7 @@ interface MenuState {
   soundEnabled: boolean;
   musicEnabled: boolean;
   controlMode: 'tilt' | 'touch';
+  invertTilt: boolean;
 }
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
     soundEnabled: true,
     musicEnabled: true,
     controlMode: 'tilt',
+    invertTilt: true,
   });
   const [showCalibrationHint, setShowCalibrationHint] = useState(false);
 
@@ -86,6 +88,10 @@ export default function App() {
             gameRef.current?.toggleControlMode();
             syncMenu();
           }}
+          onToggleInvert={() => {
+            gameRef.current?.toggleInvertTilt();
+            syncMenu();
+          }}
         />
       )}
       {state === 'PLAYING' && <HUD hud={hud} onPause={() => gameRef.current?.pause()} />}
@@ -119,5 +125,6 @@ function menuFromSave(save: SaveData): MenuState {
     soundEnabled: save.soundEnabled,
     musicEnabled: save.musicEnabled,
     controlMode: save.controlMode,
+    invertTilt: save.invertTilt,
   };
 }

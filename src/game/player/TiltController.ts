@@ -39,6 +39,7 @@ export class TiltController {
   private lastEventAt = -Infinity;
   private debugTimer: number | null = null;
   private debugMode = false;
+  private invert = true;
 
   private onDeviceOrientation = (e: DeviceOrientationEvent): void => {
     this.ingest(e.gamma);
@@ -90,7 +91,12 @@ export class TiltController {
   get axis(): number {
     if (!this.active) return 0;
     if (performance.now() - this.lastEventAt > TILT_CONFIG.staleAfterMs) return 0;
-    return tiltToAxis(this.filtered, this.calibration, TILT_CONFIG);
+    const value = tiltToAxis(this.filtered, this.calibration, TILT_CONFIG);
+    return this.invert ? -value : value;
+  }
+
+  setInvert(invert: boolean): void {
+    this.invert = invert;
   }
 
   get eventCountValue(): number {

@@ -50,8 +50,9 @@ export class PlayerController {
     e.preventDefault();
   };
 
-  constructor(private canvas: HTMLCanvasElement, controlMode: ControlMode) {
+  constructor(private canvas: HTMLCanvasElement, controlMode: ControlMode, invertTilt: boolean) {
     this.controlMode = controlMode;
+    this.tilt.setInvert(invertTilt);
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
     canvas.addEventListener('pointerdown', this.onPointerDown);
@@ -76,6 +77,10 @@ export class PlayerController {
     if (mode !== 'tilt') {
       this.setTiltEnabled(false);
     }
+  }
+
+  setInvertTilt(invert: boolean): void {
+    this.tilt.setInvert(invert);
   }
 
   setTiltEnabled(enabled: boolean): void {
